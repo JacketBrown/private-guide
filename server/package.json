@@ -1,0 +1,31 @@
+{
+  "name": "private-guide-server",
+  "version": "1.3.0",
+  "description": "私人 AI 导游 App — 本地中转服务（隐藏 API 密钥、代理模型调用、资料检索）",
+  "main": "index.js",
+  "bin": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "build": "pkg . --config pkg.config.json"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "msedge-tts": "^2.0.9"
+  },
+  "pkg": {
+    "scripts": [
+      "*.js",
+      "services/*.js"
+    ],
+    "assets": [
+      "../web/**/*",
+      "node_modules/msedge-tts/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "../dist"
+  }
+}

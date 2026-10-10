@@ -1,0 +1,59 @@
+# ============================================
+# 私人 AI 导游 App — Git 忽略规则
+# 原则：只提交「源码」，不提交「构建产物」与「密钥」
+# ============================================
+
+# ---- 依赖 ----
+node_modules/
+
+# ---- 环境配置（含 API 密钥，严禁提交）----
+.env
+.env.local
+.env.*.local
+
+# ---- 运行时配置（含用户填写的密钥，严禁提交）----
+server/data/
+
+# ---- 构建产物：服务端打包 ----
+server/build/*.cjs
+server/build/*.blob
+server/build/output/
+
+# ---- 构建产物：App / 安卓 ----
+# Capacitor 把 web/ 拷进 www/，再把 www/ 拷进 assets/public/，都是副本
+app/www/
+app/android/app/src/main/assets/public/
+app/android/app/build/
+app/android/build/
+app/android/.gradle/
+app/android/local.properties
+app/android/capacitor-cordova-android-plugins/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ---- 构建产物：分发包 ----
+dist/*.apk
+dist/*.zip
+dist/*.exe
+
+# ---- 原生工程自动生成 ----
+app/android/app/src/main/assets/capacitor.config.json
+app/android/app/src/main/assets/capacitor.plugins.json
+
+# ---- 系统与编辑器 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# ---- 日志与临时文件 ----
+*.log
+npm-debug.log*
+yarn-error.log*
+tmp/
+temp/
+.cache/

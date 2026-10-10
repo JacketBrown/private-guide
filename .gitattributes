@@ -1,0 +1,21 @@
+# 统一换行符，避免 Windows 下满屏 LF/CRLF 警告
+* text=auto eol=lf
+
+# Windows 批处理必须保持 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制文件不做转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.jar binary
+*.apk binary
+*.aab binary
+*.keystore binary
+*.jks binary
+
+# 锁文件在合并时按自身生成，不参与 diff
+package-lock.json -diff linguist-generated

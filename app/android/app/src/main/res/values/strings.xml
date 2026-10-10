@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">私人导游</string>
+    <string name="title_activity_main">私人导游</string>
+    <string name="package_name">com.privatetour.guide</string>
+    <string name="custom_url_scheme">com.privatetour.guide</string>
+</resources>
