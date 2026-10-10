@@ -91,47 +91,178 @@ const AppConfig = (() => {
   //  二、模型设置（直连模式）—— 密钥 / 接口地址 / 模型
   // ============================================================
 
-  /** 常见服务商预设，方便用户一键带出地址和模型名 */
+  /**
+   * 主流服务商预设，方便用户一键带出地址和模型名
+   *
+   * 字段说明：
+   *   group      下拉列表的分组名（国内直连 / 聚合中转 / 海外服务）
+   *   modelVision 必须支持图片输入（image_url）的模型
+   *   modelText   长文本生成模型
+   *   custom      true = 需要用户手填地址与模型
+   *
+   * ⚠️ 模型名会随厂商迭代下线，预设只是「开箱可用」的起点，
+   *    用户随时可在下方手填覆盖。选错模型时接口会返回 404，
+   *    按提示去服务商控制台查最新模型名即可。
+   */
   const PROVIDER_PRESETS = [
+    // ---------- 国内直连（无需特殊网络） ----------
     {
       id: 'taotoken',
+      group: '国内直连',
       name: 'TaoToken 中转',
       baseUrl: 'https://api.taotoken.net/v1',
       modelVision: 'glm-5.3-flash',
       modelText: 'deepseek-v4-pro',
-      hint: '国内直连的聚合中转，按量付费',
+      hint: '国内直连的聚合中转，按量付费，默认推荐',
+      console: 'https://api.taotoken.net/',
     },
     {
       id: 'dashscope',
-      name: '阿里云百炼（通义）',
+      group: '国内直连',
+      name: '阿里云百炼（通义千问）',
       baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       modelVision: 'qwen-vl-max',
       modelText: 'qwen-max',
-      hint: '国内直连，新用户有免费额度',
+      hint: '国内直连，新用户有免费额度，视觉模型成熟',
+      console: 'https://bailian.console.aliyun.com/',
+      doc: 'https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope',
+    },
+    {
+      id: 'zhipu',
+      group: '国内直连',
+      name: '智谱 AI（GLM）',
+      baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
+      modelVision: 'glm-4v-plus',
+      modelText: 'glm-4-plus',
+      hint: '国内直连，GLM 系列有免费额度，视觉能力好',
+      console: 'https://open.bigmodel.cn/usercenter/apikeys',
+      doc: 'https://docs.bigmodel.cn/cn/guide/develop/openai/introduction',
+    },
+    {
+      id: 'ark',
+      group: '国内直连',
+      name: '火山方舟（豆包）',
+      baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+      modelVision: 'doubao-1.5-vision-pro',
+      modelText: 'doubao-1.5-pro',
+      hint: '国内直连，字节豆包；模型名需填控制台的「接入点 ID」或模型名',
+      console: 'https://console.volcengine.com/ark/',
+      doc: 'https://www.volcengine.com/docs/82379/1888360',
+    },
+    {
+      id: 'hunyuan',
+      group: '国内直连',
+      name: '腾讯混元',
+      baseUrl: 'https://api.hunyuan.cloud.tencent.com/v1',
+      modelVision: 'hunyuan-turbos-vision',
+      modelText: 'hunyuan-turbos-latest',
+      hint: '国内直连，开通即赠 token 资源包',
+      console: 'https://console.cloud.tencent.com/hunyuan/api-key',
+      doc: 'https://cloud.tencent.com/document/product/1729/116755',
+    },
+    {
+      id: 'moonshot',
+      group: '国内直连',
+      name: '月之暗面 Kimi',
+      baseUrl: 'https://api.moonshot.cn/v1',
+      modelVision: 'kimi-k3',
+      modelText: 'kimi-k3',
+      hint: '国内直连，超长上下文，K3 原生支持视觉理解',
+      console: 'https://platform.moonshot.cn/console/api-keys',
+      doc: 'https://platform.moonshot.cn/docs/',
     },
     {
       id: 'deepseek',
+      group: '国内直连',
       name: 'DeepSeek 官方',
       baseUrl: 'https://api.deepseek.com/v1',
-      modelVision: 'deepseek-vl2',
+      modelVision: '',
       modelText: 'deepseek-chat',
-      hint: '文本模型便宜，视觉模型需确认可用性',
+      hint: '文本模型便宜，但官方接口不支持图片输入，拍照识别需另配视觉服务商',
+      console: 'https://platform.deepseek.com/api_keys',
+      doc: 'https://api-docs.deepseek.com/',
     },
     {
+      id: 'qianfan',
+      group: '国内直连',
+      name: '百度千帆（文心一言）',
+      baseUrl: 'https://qianfan.baidubce.com/v2',
+      modelVision: 'ernie-4.5-turbo-vl',
+      modelText: 'ernie-4.5-turbo-128k',
+      hint: '国内直连，需在千帆控制台逐个开通模型，密钥以 bce-v3/ 开头',
+      console: 'https://console.bce.baidu.com/qianfan/ais/console/apiKey',
+      doc: 'https://cloud.baidu.com/doc/qianfan/s/rmh4stn9m',
+    },
+    {
+      id: 'minimax',
+      group: '国内直连',
+      name: 'MiniMax',
+      baseUrl: 'https://api.minimax.chat/v1',
+      modelVision: 'MiniMax-M3',
+      modelText: 'MiniMax-M3',
+      hint: '国内直连，M3 支持图文视频输入；密钥格式为「GroupId:Key」',
+      console: 'https://platform.minimaxi.com/user-center/basic-information/interface-key',
+      doc: 'https://platform.minimax.io/docs/guides/text-generation',
+    },
+
+    // ---------- 聚合中转（一个密钥通多家模型） ----------
+    {
+      id: 'siliconflow',
+      group: '聚合中转',
+      name: '硅基流动 SiliconFlow',
+      baseUrl: 'https://api.siliconflow.cn/v1',
+      modelVision: 'Qwen/Qwen2.5-VL-72B-Instruct',
+      modelText: 'deepseek-ai/DeepSeek-V3',
+      hint: '国内直连，托管 200+ 开源模型，有免费额度，性价比高',
+      console: 'https://cloud.siliconflow.cn/account/ak',
+      doc: 'https://docs.siliconflow.cn/',
+    },
+    {
+      id: 'openrouter',
+      group: '聚合中转',
+      name: 'OpenRouter',
+      baseUrl: 'https://openrouter.ai/api/v1',
+      modelVision: 'google/gemini-2.5-flash',
+      modelText: 'deepseek/deepseek-chat',
+      hint: '一个密钥调用全球各家模型，模型名需带厂商前缀（如 google/xxx）',
+      console: 'https://openrouter.ai/settings/keys',
+      doc: 'https://openrouter.ai/docs',
+    },
+
+    // ---------- 海外服务（需能访问海外的网络环境） ----------
+    {
       id: 'openai',
+      group: '海外服务',
       name: 'OpenAI 官方',
       baseUrl: 'https://api.openai.com/v1',
       modelVision: 'gpt-4o',
       modelText: 'gpt-4o',
-      hint: '需要能访问海外的网络环境',
+      hint: '需要能访问海外的网络环境，且账号已开通付费',
+      console: 'https://platform.openai.com/api-keys',
+      doc: 'https://platform.openai.com/docs/api-reference',
     },
     {
+      id: 'dashscope-intl',
+      group: '海外服务',
+      name: '阿里云百炼（国际站）',
+      baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+      modelVision: 'qwen-vl-max',
+      modelText: 'qwen-max',
+      hint: '阿里云海外节点，适合海外网络环境使用',
+      console: 'https://bailian.console.alibabacloud.com/',
+      doc: 'https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope',
+    },
+
+    // ---------- 自定义 ----------
+    {
       id: 'custom',
+      group: '自定义',
       name: '自定义（OpenAI 兼容）',
       baseUrl: '',
       modelVision: '',
       modelText: '',
       hint: '填任何 OpenAI 兼容接口，地址一般以 /v1 结尾',
+      custom: true,
     },
   ];
 

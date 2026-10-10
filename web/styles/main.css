@@ -1804,6 +1804,37 @@ select.field-input {
   color: var(--ink-faint);
 }
 
+/* 服务商快捷链接（申请密钥 / 看文档） */
+.field-link {
+  display: inline-block;
+  margin-top: 7px;
+  margin-right: 14px;
+  font-size: 12px;
+  color: var(--dai);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(47, 79, 79, 0.25);
+  padding-bottom: 1px;
+  transition: border-color 0.18s ease, opacity 0.18s ease;
+}
+.field-link:hover {
+  border-bottom-color: var(--dai);
+  opacity: 0.85;
+}
+.field-link[hidden] {
+  display: none !important;
+}
+
+/* 下拉分组标题（国内直连 / 聚合中转 / 海外服务） */
+select.field-input optgroup {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+select.field-input optgroup option {
+  font-weight: 400;
+  color: var(--ink);
+}
+
 /* 复选框行（如"清空已保存的密钥"） */
 .field-inline {
   display: flex;

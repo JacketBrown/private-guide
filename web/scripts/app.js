@@ -84,6 +84,8 @@
   const inputProvider = $('inputProvider');
   const providerTag = $('providerTag');
   const providerHint = $('providerHint');
+  const providerConsole = $('providerConsole');
+  const providerDoc = $('providerDoc');
   const keyTag = $('keyTag');
   const inputApiKey = $('inputApiKey');
   const inputBaseUrl = $('inputBaseUrl');
@@ -933,6 +935,12 @@
     el.textContent = text;
   }
 
+  function hideProbe(el) {
+    if (!el) return;
+    el.hidden = true;
+    el.textContent = '';
+  }
+
   /** 按当前配置渲染状态卡（直连 vs 中转） */
   function refreshConnCard() {
     if (API.useBackend()) {
@@ -956,16 +964,61 @@
     );
   }
 
+  /**
+   * 渲染服务商下拉选项
+   * 按 group 分组成 <optgroup>，组内顺序与预设表一致；
+   * 组名顺序固定为：国内直连 → 聚合中转 → 海外服务 → 自定义
+   */
+  function renderProviderOptions(selectedId) {
+    const presets = AppConfig.PROVIDER_PRESETS;
+    const groupOrder = ['国内直连', '聚合中转', '海外服务', '自定义'];
+    const groups = new Map();
+    presets.forEach((p) => {
+      const g = p.group || '其他';
+      if (!groups.has(g)) groups.set(g, []);
+      groups.get(g).push(p);
+    });
+
+    const optHtml = (p) =>
+      `<option value="${escapeHtml(p.id)}"${p.id === selectedId ? ' selected' : ''}>${escapeHtml(p.name)}</option>`;
+
+    // 已知分组按固定顺序输出，未知分组兜底追加在后面
+    const orderedKeys = [
+      ...groupOrder.filter((g) => groups.has(g)),
+      ...[...groups.keys()].filter((g) => !groupOrder.includes(g)),
+    ];
+
+    return orderedKeys
+      .map((g) => `<optgroup label="${escapeHtml(g)}">${groups.get(g).map(optHtml).join('')}</optgroup>`)
+      .join('');
+  }
+
+  /** 同步服务商相关的两个快捷链接 */
+  function renderProviderLinks(preset) {
+    const setLink = (el, url, text) => {
+      if (!el) return;
+      if (url) {
+        el.href = url;
+        el.textContent = text;
+        el.hidden = false;
+      } else {
+        el.removeAttribute('href');
+        el.hidden = true;
+      }
+    };
+    setLink(providerConsole, preset.console, '前往控制台申请密钥 →');
+    setLink(providerDoc, preset.doc, '查看该服务商文档 →');
+  }
+
   /** 填充表单 */
   function fillForm() {
     const c = AppConfig.llm();
 
-    // 服务商下拉
-    inputProvider.innerHTML = AppConfig.PROVIDER_PRESETS.map(
-      (p) => `<option value="${escapeHtml(p.id)}"${p.id === c.provider ? ' selected' : ''}>${escapeHtml(p.name)}</option>`,
-    ).join('');
+    // 服务商下拉：按 group 分组渲染（<optgroup>），让用户一眼分辨网络可用性
+    inputProvider.innerHTML = renderProviderOptions(c.provider);
     const preset = AppConfig.getPreset(c.provider);
     providerHint.textContent = preset.hint || '';
+    renderProviderLinks(preset);
 
     // 地址 / 模型回填（用户已保存的值优先，没有则用预设）
     inputBaseUrl.value = c.baseUrl || preset.baseUrl || '';
@@ -1023,10 +1076,18 @@
     const p = AppConfig.getPreset(inputProvider.value);
     providerHint.textContent = p.hint || '';
     providerTag.textContent = p.baseUrl ? '已带出地址' : '需手填';
+    renderProviderLinks(p);
     if (p.baseUrl) inputBaseUrl.value = p.baseUrl;
-    if (p.modelVision) inputModelVision.value = p.modelVision;
     if (p.modelText) inputModelText.value = p.modelText;
-    if (p.hint) showProbe(serverResult, p.hint, 'info');
+    // 视觉模型：预设没有就清空，避免留着上一家的模型名导致调用 404
+    inputModelVision.value = p.modelVision || '';
+
+    if (p.hint) {
+      const kind = p.custom ? 'info' : p.modelVision ? 'info' : 'bad';
+      showProbe(serverResult, p.hint, kind);
+    } else {
+      hideProbe(serverResult);
+    }
   });
 
   // 测试连接
